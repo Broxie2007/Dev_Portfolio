@@ -1,17 +1,37 @@
-# Write the Header row (Now with 2 columns)
+import requests
+import csv
+from bs4 import BeautifulSoup
+
+# 1. Target URL
+url = "http://books.toscrape.com/"
+
+# 2. Get the HTML
+response = requests.get(url)
+
+# 3. Create the Soup
+soup = BeautifulSoup(response.text, "html.parser")
+
+# 4. Save to CSV
+print("Starting scrape...")
+
+with open("leads.csv", mode="w", newline="", encoding="utf-8") as file:
+    writer = csv.writer(file)
+    
+    # Write the Header row (2 Columns now)
     writer.writerow(["Book Title", "Price"])
     
-    # Loop through the books (We need to find the 'article' container first for better accuracy)
-    # This finds the box that holds BOTH title and price
+    # Find all the 'article' boxes (which contain both title and price)
     all_books = soup.find_all("article", class_="product_pod")
     
     for book in all_books:
-        # 1. Get the Title (It's inside an 'h3' tag, inside an 'a' tag)
+        # Get the Title (inside h3 -> a)
         title = book.h3.a["title"]
         
-        # 2. Get the Price (It's inside a 'p' tag with class 'price_color')
+        # Get the Price (inside p class='price_color')
         price = book.find("p", class_="price_color").text
         
-        # 3. Save both to the file
+        # Save both
         writer.writerow([title, price])
         print(f"Saved: {title} - {price}")
+
+print("Done! Check leads.csv")
